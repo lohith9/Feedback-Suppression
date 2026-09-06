@@ -1,5 +1,5 @@
 # REPRODUCIBILITY.md
-### When AI Writes the Record — full reproduction instructions
+### Feedback Suppression of Adaptation in AI-Written Structured State — full reproduction instructions
 ### Total research cost to reproduce everything: **$0.00**
 
 ---

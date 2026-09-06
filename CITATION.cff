@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software or its results, please cite it as below."
-title: "When AI Writes the Record: Feedback Suppression of Adaptation in Structured State"
+title: "Feedback Suppression of Adaptation in AI-Written Structured State"
 abstract: >-
   A reproducible research framework and controlled study of the feedback that
   arises when AI-generated typed structured state becomes machine-readable
@@ -31,7 +31,7 @@ keywords:
 # No DOI has been assigned; do not add one until minted (e.g., via Zenodo).
 preferred-citation:
   type: conference-paper
-  title: "When AI Writes the Record: Feedback Suppression of Adaptation in Structured State"
+  title: "Feedback Suppression of Adaptation in AI-Written Structured State"
   authors:
     - family-names: "Andra"
       given-names: "Lohith Sai"

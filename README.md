@@ -1,4 +1,4 @@
-# When AI Writes the Record: Feedback Suppression of Adaptation in Structured State
+# Feedback Suppression of Adaptation in AI-Written Structured State
 
 A reproducible research framework for studying the feedback that arises when
 AI-generated **structured state** becomes machine-readable evidence for

@@ -1,0 +1,118 @@
+# STAGE 1 CORRECTED — PRE-REGISTRATION
+# FROZEN 15 Aug 2026, BEFORE any treatment condition was executed.
+# Code version: phase1b-corrected-3.0.0 (sim1c.py)
+#
+# DO NOT MODIFY. If change is required, create STAGE1_CORRECTED_v2.yaml and
+# document why. Never silently edit this file.
+
+supersedes:
+  file: config/preregistered_phase1b.yaml
+  reason: >
+    Original Stage 1 was declared INVALID (see PHASE1B_FINDINGS.md). Defects:
+    D1 write-volume mismatch (4800 vs 3200); D2 confirmation weight inert
+    because two feedback channels were conflated and the write-back saturated
+    the effect; D3 adaptation threshold 0.85 unreachable (100% censored).
+  status_of_prior_results: EXPLORATORY ONLY — never confirmatory.
+
+hypothesis:
+  statement: >
+    When downstream decisions are conditioned on prior AI-generated structured
+    state, feedback can suppress the incorporation of fresh evidence and
+    therefore reduce adaptation when the underlying truth changes.
+  status: NEW, derived from an exploratory ablation. NOT established.
+  primary_outcome: adaptation_after_truth_change
+  note: >
+    The prior 2x2 diagnostic ablation motivated this design but CANNOT serve as
+    confirmation (directive SS25). This experiment must stand alone.
+
+factors:
+  A_producer_deference_weight:
+    description: probability the producer copies existing readable state instead of its own fresh observation
+    values_smoke: [0.0, 0.9]
+    values_full: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  B_decision_writeback:
+    description: >
+      whether the decision is written back as READABLE authoritative state
+      (risk_level) or as an inert archival record (decision_archive).
+      Write COUNT is identical either way; only readability differs.
+    values: [false, true]
+  orthogonality: A and B are crossed, never collapsed into one "feedback" flag.
+
+truth_regimes:
+  T1_static:       {mode: static}
+  T2_abrupt_shift: {mode: abrupt_shift, change_cycle: 15}
+  T3_gradual_drift: DEFERRED — only after T2 verified.
+  mandatory_pairing: >
+    Every abrupt-shift condition MUST be reported beside its static-truth
+    counterpart. Absolute quality differences are never interpreted without it,
+    because the control improves even with no truth change.
+
+noise_regime:
+  N1_independent: {base_error_rate: 0.25}
+  correlated: DEFERRED to the next robustness experiment (implemented, untested).
+
+core_conditions:            # directive SS13
+  1: {writeback: false, w: 0.0}
+  2: {writeback: false, w: 0.3}
+  3: {writeback: false, w: 0.7}
+  4: {writeback: false, w: 0.9}
+  5: {writeback: true,  w: 0.0}
+  6: {writeback: true,  w: 0.7}
+  7: {writeback: true,  w: 0.9}
+
+adaptation:
+  # THRESHOLD DERIVED FROM CONTROL-ONLY CALIBRATION, treatment arms unseen.
+  # Calibration (w=0.0, write-back OFF, 10 seeds, results/calibration/control_ceiling.json):
+  #   static       -> 0.895 @c14, 0.9875 @c40, tail(31-40) mean 0.9785
+  #   abrupt_shift -> 0.895 @c14, 0.4775 @c25, 0.775 @c40, tail(31-40) mean 0.716
+  quality_threshold: 0.70
+  persistence_cycles: 3
+  measurement_window: 10
+  justification: >
+    0.70 is (a) far above chance (0.50), (b) below the control's post-shift
+    asymptote (0.775 mean at c40; tail mean 0.716), so it is REACHABLE — unlike
+    the discarded 0.85 — and (c) high enough that a non-adapting system near
+    0.24 cannot reach it. It therefore discriminates adapted from non-adapted.
+  censoring: >
+    Never reached before final cycle => CENSORED, reported as ">=40", never
+    silently dropped.
+
+metrics:
+  primary:   [adaptation_quality, adaptation_time, adaptation_gap]
+  secondary: [cumulative_regret, AOD, RR_echo, write_volume, observations]
+  adaptation_gap: "quality(reference condition) - quality(comparison condition), paired by seed"
+  gap_windows_cycles_after_change: [0, 3, 5, 10, 25]
+  practical_significance_floor: 0.10
+
+mandatory_invariant:            # directive SS19
+  rule: "write_volume(writeback=ON) == write_volume(writeback=OFF) for every paired comparison"
+  enforcement: sim1c.assert_write_invariant() — experiment ABORTS on violation.
+  verified_before_freeze: true
+
+seeds:
+  smoke: 10
+  confirmatory: 30
+  rule: "A 10-seed result is exploratory and must never be reported as robust."
+
+statistics:
+  design: paired by seed (identical truth/noise realisations across conditions)
+  test: paired comparison per seed; report mean, median, sd, CI, paired effect size, per-seed values
+  effect_size: paired Cohen's d
+
+exclusion_rules:
+  - No run is excluded for being inconvenient.
+  - Censored adaptation times are reported as censored, never dropped.
+  - Failed/aborted runs are reported with the reason.
+
+stopping_rules:
+  - "adaptation gap < 0.10 at all windows for both factors -> ABANDON"
+  - "effect direction inconsistent across >=30% of seeds -> ABANDON"
+  - "static control shows the same gap as abrupt shift -> not adaptation-specific -> MODIFY/ABANDON"
+  - "write-volume invariant violated -> ABORT"
+  - "effect requires post-hoc threshold change -> ABANDON"
+
+prohibited:
+  - modifying this file after treatment runs begin
+  - reusing the discarded 0.85 threshold
+  - presenting the prior exploratory ablation as confirmation
+  - deleting or overwriting results/raw/stage1_INVALID_v1.json

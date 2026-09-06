@@ -1,0 +1,38 @@
+{
+  "static_c14": [
+    0.895,
+    0.0384
+  ],
+  "static_c25": [
+    0.945,
+    0.0218
+  ],
+  "static_c30": [
+    0.965,
+    0.0166
+  ],
+  "static_c40": [
+    0.9875,
+    0.0168
+  ],
+  "static_tail31_40_mean": 0.9785,
+  "static_tail31_40_min": 0.9475,
+  "abrupt_shift_c14": [
+    0.895,
+    0.0384
+  ],
+  "abrupt_shift_c25": [
+    0.4775,
+    0.0711
+  ],
+  "abrupt_shift_c30": [
+    0.6175,
+    0.0633
+  ],
+  "abrupt_shift_c40": [
+    0.775,
+    0.025
+  ],
+  "abrupt_shift_tail31_40_mean": 0.716,
+  "abrupt_shift_tail31_40_min": 0.63
+}

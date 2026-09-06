@@ -1,0 +1,90 @@
+# C2 — CORRELATED-NOISE ROBUSTNESS · PRE-REGISTRATION
+# FROZEN 16 Aug 2026, BEFORE the correlated-noise mechanism was implemented
+# and BEFORE any C2 result was observed.
+#
+# This file does NOT modify preregistration/STAGE1_CORRECTED.yaml, which stays
+# frozen and authoritative for C1. C2 is a separate robustness experiment.
+
+motivation: >
+  C1 established adaptation suppression under INDEPENDENT observation noise.
+  The manuscript names that independence assumption as its most important
+  untested threat: the no-feedback reference recovers by accumulating repeated
+  independent observations of the same entity, which is exactly the mechanism
+  correlation would remove. C2 asks whether the effect is an artifact of that
+  assumption.
+
+noise_model:
+  name: persistent_entity_bias
+  rationale: >
+    The assumption under test is that REPEATED observations of the SAME entity
+    across cycles are independent. Correlating errors across entities within a
+    cycle would not test this. We therefore attach the correlation to the entity
+    over time, which is the realistic case (a systematically hard or
+    mis-instrumented account) and the one that removes the reference's recovery
+    mechanism.
+  mechanism: >
+    Each entity e receives one persistent error state B_e ~ Bernoulli(p), drawn
+    once per (seed, regime). For each observation of e:
+      with probability rho  -> error = B_e         (persistent, repeats exactly)
+      with probability 1-rho -> error ~ Bernoulli(p) (fresh, independent)
+    Observation = truth if no error, else 1 - truth.
+  marginal_error_rate: >
+    P(error) = rho*p + (1-rho)*p = p exactly, for every rho. The marginal error
+    rate is therefore IDENTICAL across correlation levels, so conditions differ
+    only in the dependence structure and not in overall noisiness. This is
+    required for the comparison to be interpretable.
+  p: 0.25
+  rho_levels: [0.0, 0.3, 0.6, 0.9]     # independent baseline, low, medium, high
+  validity: >
+    rho=0.0 must reproduce C1 behaviour exactly (regression check).
+    rho=0.9 means ~90% of observations of an entity repeat its fixed error state.
+
+conditions:                              # minimum informative set (directive §5)
+  reference:              {writeback: false, w: 0.0}   # no feedback
+  behavioural_feedback:   {writeback: false, w: 0.7}   # producer deference
+  architectural_feedback: {writeback: true,  w: 0.0}   # readable write-back
+
+truth_regime: {mode: abrupt_shift, change_cycle: 15}   # same as C1; no drift yet
+seeds: 30
+paired: true                             # identical truth/noise realisations per seed
+
+metrics:                                 # UNCHANGED from C1 — no new primary metric
+  primary: [adaptation_quality, adaptation_time, adaptation_gap, cumulative_regret]
+  windows_cycles_after_change: [0, 3, 5, 10, 25]
+  adaptation_threshold: 0.70             # inherited from frozen C1 prereg
+  persistence_cycles: 3
+  secondary: [AOD, RR, write_volume, observations]
+  secondary_status: >
+    AOD/RR remain DESCRIPTIVE structural indicators. C1 refuted them as harm
+    detectors. No attempt will be made to rescue them.
+
+invariants:                              # all C1 invariants remain enforced
+  - write_volume(writeback ON) == write_volume(writeback OFF)
+  - truth transition exactly at cycle 15
+  - paired seed consistency across conditions
+  - threshold/config read from frozen preregistration
+  - config hash + code version stored on every record
+  on_violation: ABORT
+
+interpretation_rules:                    # declared in advance (directive §11)
+  outcome_A_survives: >
+    Gap remains >= 0.10 (practical floor) with CI excluding zero at rho=0.9
+    -> "robust to the tested range of observation correlation".
+  outcome_B_attenuates: >
+    Gap shrinks materially but stays >= 0.10 with CI excluding zero
+    -> "correlation attenuates the effect, but the phenomenon remains".
+  outcome_C_disappears: >
+    Gap falls below 0.10 or CI includes zero at higher rho
+    -> "the effect depends materially on independent evidence accumulation and
+    does not survive the tested correlated-noise regimes".
+  note: >
+    Outcome C is a BOUNDARY CONDITION, not a failure of the research, and will
+    be reported as prominently as A or B. The simulator will NOT be modified to
+    preserve the effect.
+
+prohibited:
+  - modifying STAGE1_CORRECTED.yaml or any C1 raw result
+  - changing the adaptation threshold or primary metrics
+  - adding an LLM, network access, or any paid resource
+  - introducing additional new factors in this experiment (drift stays deferred)
+  - tuning rho levels after seeing results to obtain a preferred outcome

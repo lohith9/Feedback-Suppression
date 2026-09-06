@@ -1,0 +1,77 @@
+# PHASE 1B PRE-REGISTRATION
+# Written BEFORE any Phase 1B treatment run. Directive §10, §18.
+# Committed 15 Aug 2026.
+#
+# These values may NOT be changed after seeing treatment results.
+# If a threshold proves inappropriate it is reported as a limitation,
+# and any revision is declared post-hoc in PHASE1B_FINDINGS.md.
+
+hypothesis:
+  statement: >
+    When downstream decisions are partially conditioned on prior AI-generated
+    structured state, feedback reduces the system's ability to adapt to a change
+    in underlying truth, because new observations receive insufficient weight
+    relative to recycled prior state.
+  primary_outcome: adaptation_suppression      # NOT direct degradation
+  dead_hypothesis: >
+    "AI-origin feedback causes direct decision-quality degradation while
+    conventional monitoring stays flat" — FAILED in Phase 0, not revived.
+
+adaptation_time:
+  # First cycle AFTER the truth change at which decision quality reaches the
+  # threshold and stays >= threshold for `persistence_cycles` consecutive cycles.
+  quality_threshold: 0.85
+  persistence_cycles: 3
+  censoring: >
+    If never reached before the final cycle, adaptation time is CENSORED and
+    reported as ">= run length". Censored runs are never silently dropped.
+  rationale: >
+    0.85 sits clearly above the single-observation accuracy ceiling (~0.75 at
+    base_error_rate 0.25) and clearly below the no-feedback asymptote observed
+    in Phase 0 (~0.96), so it discriminates adapted from non-adapted states
+    without being reachable by chance. Chosen a priori.
+
+adaptation_gap:
+  # Primary metric. Measured at fixed windows after the truth-change cycle.
+  definition: "quality(feedback OFF) - quality(feedback ON)"
+  windows_cycles_after_change: [0, 3, 5, 10]
+  practical_significance_floor: 0.10
+  rationale: >
+    A gap below 10 accuracy points is treated as not practically meaningful
+    regardless of statistical significance, given Phase 0 seed noise (~0.07-0.08).
+
+weight_response:
+  # Directive §15: a parameter-response relationship is stronger evidence than
+  # any single configuration.
+  expectation_declared_in_advance: >
+    If the mechanism is real, adaptation gap should INCREASE monotonically (or
+    threshold-like) with confirmation weight, and be ~0 at weight 0.0.
+  stage1_weights: [0.3, 0.7, 0.9]
+  interpretation_rules:
+    - "gap ~0 at all weights -> effect absent -> ABANDON"
+    - "gap present only at a single weight -> parameter artefact -> ABANDON/MODIFY"
+    - "gap rises with weight -> mechanism supported"
+    - "gap present at weight 0.0 (reads state but never copies) -> confound, investigate"
+
+statistics:
+  structure: >
+    Seeds are paired across feedback ON/OFF (identical seed => identical truth
+    process, noise draws, entity pool, and write schedule). The correct test is
+    therefore a PAIRED comparison per seed, not an independent-samples test.
+  report: [mean, sd, median, per_seed, paired_difference_CI, effect_size]
+  effect_size: "paired Cohen's d (mean paired diff / sd of paired diffs)"
+
+stop_conditions:
+  - "adaptation gap < 0.10 at all windows and all weights -> ABANDON"
+  - "effect not consistent in direction across >=70% of seeds -> ABANDON"
+  - "matched-write no-feedback control (C4) shows same gap -> write-volume confound -> ABANDON"
+  - "static-truth control (C6) shows same gap -> drift generator artefact -> ABANDON"
+  - "effect requires post-hoc threshold change to appear -> ABANDON"
+
+stage1_scope:
+  truth_modes: [static, abrupt_shift]
+  noise_modes: [independent]
+  weights: [0.3, 0.7, 0.9]
+  feedback: [true, false]
+  seeds: 10
+  note: "Stage 2 (drift, correlated noise, full 0.0-1.0 sweep, 30+ seeds) requires Cowork review first."

@@ -1,0 +1,81 @@
+{
+  "timestamp": "20260816_002729",
+  "code_version": "phase1b-corrected-3.0.0",
+  "prereg_sha256": "ca7ccb54def38253bd603b344c7c2c81832fe4b439263f2633209e106c1e0400",
+  "n_records": 420,
+  "conditions": [
+    [
+      false,
+      0.0
+    ],
+    [
+      false,
+      0.3
+    ],
+    [
+      false,
+      0.7
+    ],
+    [
+      false,
+      0.9
+    ],
+    [
+      true,
+      0.0
+    ],
+    [
+      true,
+      0.7
+    ],
+    [
+      true,
+      0.9
+    ]
+  ],
+  "regimes": [
+    "static",
+    "abrupt_shift"
+  ],
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "quality_threshold": 0.7,
+  "persistence_cycles": 3,
+  "invariants": {
+    "threshold": "PASS",
+    "truth": "PASS",
+    "seed": "PASS",
+    "write_volume": "PASS",
+    "config": "PASS"
+  }
+}

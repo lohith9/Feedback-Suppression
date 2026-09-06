@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it as below."
+title: "When AI Writes the Record: Feedback Suppression of Adaptation in Structured State"
+abstract: >-
+  A reproducible research framework and controlled study of the feedback that
+  arises when AI-generated typed structured state becomes machine-readable
+  evidence for subsequent automated decisions, under fixed decision policies with
+  no parameter updates or retraining. Separates behavioural producer deference
+  from architectural readable write-back, reports a negative provenance result,
+  and includes a UCI-derived external-validity boundary analysis.
+type: software
+authors:
+  - family-names: "Andra"
+    given-names: "Lohith Sai"
+    email: "lohithsaiandra18@gmail.com"
+    affiliation: "Independent Researcher"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   # add if available
+version: "1.0.0"
+date-released: "2026-08-23"
+# repository-code: add the GitHub URL here once the public repository is created.
+# Omitted intentionally — no URL has been assigned yet (do not invent one).
+license: MIT            # source code; research content is CC BY 4.0 (see LICENSE-CONTENT.md)
+keywords:
+  - "feedback loops"
+  - "structured state"
+  - "adaptation"
+  - "concept drift"
+  - "provenance"
+  - "reproducibility"
+  - "AI systems"
+# No DOI has been assigned; do not add one until minted (e.g., via Zenodo).
+preferred-citation:
+  type: conference-paper
+  title: "When AI Writes the Record: Feedback Suppression of Adaptation in Structured State"
+  authors:
+    - family-names: "Andra"
+      given-names: "Lohith Sai"
+      email: "lohithsaiandra18@gmail.com"
+      affiliation: "Independent Researcher"
+  collection-title: "Proc. 4th Int. Conf. on Artificial Intelligence, Computer, Data Sciences and Applications (ACDSA 2027)"
+  year: 2027
+  notes: "Submitted / under review. Update on acceptance; final version to appear in IEEE Xplore subject to acceptance and presentation."

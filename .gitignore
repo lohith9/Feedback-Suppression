@@ -1,0 +1,30 @@
+# Third-party raw data (UCI 350 — downloadable; not redistributed by default).
+# See data/README.md for source, citation, and SHA-256 checksums.
+data/raw/credit_default.xls
+data/raw/credit_default.csv
+
+# LaTeX build artifacts
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.out
+paper/**/*.bbl
+paper/**/*.blg
+paper/**/*.synctex.gz
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kept locally for the paper submission; not part of the public open-source framework
+paper/
+docs/
+archive/
+REVIEWER_QUICK_START.md
+
+# Claude session cache / transcripts — never publish
+.claude/

@@ -1,0 +1,5 @@
+# SHIFT_SEVERITY_V3 preregistration freeze record
+file: preregistration/SHIFT_SEVERITY_V3.yaml
+frozen: 2026-08-23
+sha256: 2301d9485133669e411e203d3a66e0719933d97b824c0d4d3ad55957f3a8504b
+note: confirmatory (50 seeds / 1050 runs) NOT authorized until smoke passes AND human approves.

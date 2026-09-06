@@ -1,0 +1,67 @@
+{
+  "timestamp": "20260816_125534",
+  "code_version": "c2-correlated-1.0.0",
+  "rhos": [
+    0.0,
+    0.3,
+    0.6,
+    0.9
+  ],
+  "conditions": [
+    [
+      "reference",
+      false,
+      0.0
+    ],
+    [
+      "behavioural",
+      false,
+      0.7
+    ],
+    [
+      "architectural",
+      true,
+      0.0
+    ]
+  ],
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "n_records": 360,
+  "noise_model": "persistent_entity_bias",
+  "invariants": {
+    "write_volume": "PASS",
+    "truth": "PASS",
+    "marginal_error_rate": "PASS",
+    "paired_seeds": "PASS"
+  }
+}

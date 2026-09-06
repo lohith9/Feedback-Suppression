@@ -1,0 +1,159 @@
+# SHIFT_SEVERITY_V3.yaml
+# FROZEN pre-registration for the shift-severity moderation study.
+# Supersedes SHIFT_SEVERITY_PREREGISTRATION_V2.yaml. Incorporates M1-M7 from
+# FINAL_SHIFT_SEVERITY_DESIGN_REVIEW.md. Frozen 23 Aug 2026.
+# ACDSA manuscript and C1/C2 preregistrations/raw are NOT modified by this study.
+# Confirmatory run (50 seeds / 1050 runs) is NOT authorized by this file alone —
+# it requires a passing smoke test AND explicit human approval.
+
+study:
+  name: "Shift-severity moderation of structured-state feedback adaptation penalty"
+  version: "3.0"
+  date_frozen: "2026-08-23"
+  status: "FROZEN design; smoke-test-only until human approval of confirmatory run"
+  framing: "Characterization of OUR effect's severity-response (defensibility). NOT a novelty claim. Novelty LOW-MEDIUM."
+  acceptable_outcomes: "monotone increase | monotone decrease | threshold | nonlinear | flat/none | inconclusive | invalid — ALL acceptable. Design must not favor any."
+
+hypotheses:
+  primary:
+    id: H1
+    statement: "The adaptation-specific feedback penalty Delta_adapt depends on exogenous shift severity sigma (feedback x severity interaction). Direction and shape NOT assumed."
+    confirmatory_quantities: ["sigma coefficient", "sigma:condition interaction"]
+  secondary_descriptive:
+    - "Whether the severity-response differs between Factor A (behavioural) and Factor B (architectural)."
+    - "Descriptive shape among {monotone/saturating, threshold, flat}."
+  not_registered: ["monotonicity", "any direction of effect"]
+
+# ---- M1: exactly-balanced base -------------------------------------------------
+base_population:
+  N: 100
+  construction: "exactly 50 zeros + 50 ones, assigned to a truth-RNG shuffle of entities"
+  reason: "neutralises the model's tie-break-to-1 asymmetry (a real prevalence confound); makes every sigma exactly feasible; permits sigma=1 while preserving prevalence"
+  note: "NOT chosen to strengthen the effect; chosen to remove a confound and guarantee feasibility"
+
+# ---- severity definition -------------------------------------------------------
+severity:
+  definition: "sigma = |S|/N = fraction of entities whose ground-truth state changes at the transition"
+  no_distributional_distance_claim: true    # the earlier TV-distance statement is withdrawn
+  grid: [0.00, 0.10, 0.20, 0.40, 0.60, 0.80, 1.00]   # exact 0.02 lattice
+  k_per_side: [0, 5, 10, 20, 30, 40, 50]             # |S| = 2k ; sigma = 2k/N = k/50
+  sigma_reported: "declared from k AND measured from realized truth; must match exactly (I1)"
+
+# ---- M2: nested random flip subsets -------------------------------------------
+flip_subset:
+  construction: "per seed: build balanced base; draw ONE truth-RNG shuffle of the zero-entities and ONE of the one-entities; for severity sigma take the first k of each (balanced). Flip those at change_cycle."
+  nested: "sigma_low subset sigma_high by construction (prefix of the same fixed permutation)  (I3)"
+  balance: "0->1 count == 1->0 count == k  => prevalence preserved exactly (I2)"
+  determinism: "same permutation re-derived from the same truth seed in every run; no cross-run mutable state"
+  selection_forbidden_by: ["model difficulty", "quality outcome", "feedback outcome", "post-hoc statistics"]
+
+# ---- M3: static once per (seed, condition); sigma=0 == static -------------------
+static_design:
+  rule: "static regime is partial_shift with sigma=0 (balanced base, no flips); run ONCE per (seed, condition) and reuse across all sigma"
+  sigma0_is_static: true    # I4: partial_shift(sigma=0) truth == constant base == static
+  rationale: "static truth is sigma-independent; re-running per sigma would inject spurious RNG variation. One static run per (seed,condition) is exactly paired with every abrupt-sigma run (shared base + shared noise stream)."
+
+# ---- conditions ----------------------------------------------------------------
+conditions:
+  primary:
+    - {id: reference,     writeback: false, deference_weight: 0.0}
+    - {id: behavioural,   writeback: false, deference_weight: 0.7}   # Factor A only
+    - {id: architectural, writeback: true,  deference_weight: 0.0}   # Factor B only
+  optional_secondary:
+    - {id: combined,      writeback: true,  deference_weight: 0.7}   # NOT in the primary confirmatory run
+  change_cycle: 15
+  cycles: 40
+  entities: 100
+  batch_size: 40
+  noise: {model: independent, error_rate: 0.25}
+
+# ---- M7: seeds -----------------------------------------------------------------
+seeds:
+  count: 50
+  list: "1..50 (frozen); paired across all conditions/regimes/sigma"
+  rationale: "50 for PRECISION of the severity-response curve (a characterization aim), not for significance. Interpretation is independent of p-values; a flat curve with tight CIs is a positive scientific outcome."
+
+design_size:
+  static_runs: "3 conditions x 50 seeds = 150"
+  abrupt_runs: "3 conditions x 6 nonzero sigma x 50 seeds = 900"
+  total: 1050
+  cost: "$0.00, CPU-only, deterministic, seconds"
+  authorization: "NOT authorized until smoke passes AND human approves"
+
+# ---- M4: estimand --------------------------------------------------------------
+metrics:
+  gap_sign: "feedback_gap = q_reference - q_feedback (positive = feedback worse)"
+  primary_outcome: "Delta_adapt(cond,sigma) = feedback_gap_abrupt(sigma) - feedback_gap_static, within seed, at +25 cycles after change (cycle 40)"
+  adaptation_threshold: "quality >= 0.70 sustained 3 cycles (same as C1; censoring reported)"
+  reference_recovery_control: "q_ref_abrupt(sigma) recorded and reported as a descriptive control"
+  normalized_ratio: "EXPLORATORY ONLY, computed only for sigma>=0.20 (denominator unstable near 0)"
+  secondary_descriptive: [fresh_evidence_fraction, recycled_evidence_fraction, readable_prior_state_fraction, decision_changes_per_cycle, AOD, RR]
+
+# ---- M5: single confirmatory model --------------------------------------------
+analysis:
+  confirmatory_single: "linear mixed model: Delta_adapt ~ sigma + condition + sigma:condition + (1|seed), SUM-TO-ZERO coding for condition (levels: behavioural, architectural)"
+  plain_english:
+    sigma_term: "average severity-response slope across the two channels — does the adaptation penalty grow with severity?"
+    interaction_term: "difference in severity-response slope between Factor A and Factor B — is the architectural channel's sensitivity to severity different from the behavioural channel's?"
+    random_intercept: "(1|seed) — the 12 correlated Delta_adapt values per seed share a seed offset; the independent unit is the seed"
+  exploratory_only: ["quadratic sigma^2 term (only if residuals show clear curvature)", "random slope (sigma|seed)", "two-sided Spearman(Delta_adapt, sigma) robustness", "shape overlay {monotone,threshold,flat}"]
+
+# ---- M6: no 0.05 pass/fail -----------------------------------------------------
+interpretation:
+  criterion: "the 95% CIs on the sigma and sigma:condition coefficients"
+  practical_aid_only: "a change in Delta_adapt below ~0.05 (< C1 seed-noise 0.02-0.07, << C1 effect 0.30) is described as scientifically negligible — this is a PLAIN-LANGUAGE AID, NOT a hypothesis test, stopping criterion, or significance condition"
+
+# ---- endpoints -----------------------------------------------------------------
+endpoints:
+  sigma_0: "abrupt(sigma=0) truth == static truth exactly; represented by the static run (I4)"
+  sigma_1: "every entity flips; prevalence stays 50/50; SEMANTICALLY equivalent to full inversion; NOT bit-exact with C1. C1 (~0.30 at sigma=1, randint base) is an INDEPENDENT convergent external anchor."
+
+# ---- RNG requirements (I7) -----------------------------------------------------
+rng:
+  streams: "agent Random(seed) | truth Random(seed*7919) | noise Random(seed*104729) — preserved"
+  severity_uses: "TRUTH stream only for base + flip subset"
+  guarantee: "at fixed seed, all sigma share identical agent batch ordering, deference coin sequence, and observation-noise draw sequence; they differ ONLY in the truth values of flipped entities. Verified: pre-change cycles (1..14) are bit-identical across sigma."
+  forbidden: "sigma must not depend on feedback configuration; no cross-run mutable RNG state"
+
+# ---- hard invariants (abort on failure) ---------------------------------------
+invariants:
+  I1_exact_sigma: "measured sigma == declared sigma"
+  I2_prevalence: "post-shift prevalence == pre-shift prevalence exactly (50/50)"
+  I3_nested: "flip(sigma_low) subset flip(sigma_high)"
+  I4_sigma0_static: "partial_shift(sigma=0) truth == constant base (== static) at all cycles"
+  I5_sigma1: "sigma=1 flips all N entities"
+  I6_seed_pairing: "fixed (seed,sigma): feedback conditions share identical base truth and noise stream"
+  I7_rng_isolation: "changing sigma does not alter agent/noise draw sequences (pre-change rows bit-identical across sigma)"
+  I8_write_volume: "Factor B readable and inert branches write identical counts"
+  I9_non_interference: "instrument ON vs OFF -> bit-identical decisions/writes/regret on partial_shift"
+  I10_baseline: "reproduce.py c1 -> 420/420 exact; c2 -> 360/360 exact; C1/C2 raw untouched"
+
+protected_files:
+  - "pilot/phase1b/sim1c.py"
+  - "pilot/phase1b/truth_process.py (existing branches)"
+  - "pilot/phase1b/feedback_policy.py"
+  - "pilot/sim.py (provenance)"
+  - "pilot/phase1b/preregistration/STAGE1_CORRECTED.yaml"
+  - "pilot/phase1b/preregistration/C2_CORRELATED_NOISE.yaml"
+  - "C1 raw (stage1_corrected_run_20260816_002729_n30)"
+  - "C2 raw (c2_correlated_run_20260816_125534)"
+  - "paper/final/FINAL_PAPER.tex, FINAL_PAPER.pdf, FINAL_BIB.bib, figures"
+  - "UCI results (CREDIT_RISK_REAL_PILOT_RESULTS.csv and credit_real figures)"
+
+implementation:
+  strategy: "ADDITIVE ONLY. New PartialShiftTruth module + severity controller subclassing the frozen Sim1C (mirrors run_credit_condition). No edit to any protected file."
+  new_files: ["src/scenarios/partial_shift.py", "src/experiments/severity_controller.py", "tests/test_severity_invariants.py", "run_severity_smoke.py"]
+  stop_rule: "if any protected/frozen engine file would need modification -> STOP and report before doing it"
+
+smoke_test:
+  seeds: 3
+  sigma_subset: [0.00, 0.20, 0.60, 1.00]   # 0.00 via static
+  conditions: [reference, behavioural, architectural]
+  runs: "static 3x3=9 + abrupt 3x3x3=27 = 36"
+  verifies: [I1, I2, I3, I4, I5, I6, I7, I8, I9, I10]
+  scope: "implementation validation ONLY; NO scientific interpretation of any severity curve"
+
+reproducibility:
+  code_version: "severity-v3.0.0"
+  raw_immutable: true
+  manifest: "per-run config hash + this prereg SHA-256 + code version + full sigma metadata"

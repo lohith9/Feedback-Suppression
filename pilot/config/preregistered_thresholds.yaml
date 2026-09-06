@@ -1,0 +1,56 @@
+# PRE-REGISTERED THRESHOLDS
+# Written BEFORE any treatment (A3) results were observed. Directive §18.
+# Committed 15 Aug 2026, Phase 0 smoke test.
+#
+# Rule: these values may NOT be changed after seeing treatment results.
+# If they turn out to be badly chosen, that is reported as a limitation and
+# any revision is declared as post-hoc in the writeup.
+
+conventional_monitor:
+  # Operator-visible signal: accuracy on a fixed clean holdout of fresh
+  # entities (no accumulated state).
+  metric: holdout_accuracy
+  baseline: first_cycle_value
+  alarm_condition: "holdout_accuracy < baseline - 0.05"
+  rationale: >
+    5 percentage points is a conventional "something is wrong" trigger on a
+    quality dashboard; smaller drifts are normally absorbed as noise.
+
+provenance_detector:
+  # Label-free signal available to the operator without ground truth.
+  metric: RR                      # self-reference share of decision ancestry
+  alarm_condition: "RR >= 0.30"
+  rationale: >
+    Alarm when at least ~a third of a decision's why-provenance ancestry is
+    the system's own prior AI assertions about the same entity+attribute.
+    Chosen a priori as "clear plurality of self-reference", not fitted.
+
+secondary_detector:
+  metric: AOD                     # AI-origin share of ancestry
+  alarm_condition: "AOD >= 0.90"
+  rationale: >
+    Near-total AI-origin dependence. Reported for completeness; RR is the
+    primary detector because AOD is trivially high in all-AI arms.
+
+decision_quality:
+  # Hidden from the operator; simulator ground truth only. Used to establish
+  # that real harm occurred, and when.
+  metric: live_quality
+  baseline: first_cycle_value
+  degradation_condition: "live_quality < baseline - 0.05"
+
+primary_outcome:
+  name: detection_lead_time
+  definition: "cycle(conventional_monitor alarm) - cycle(provenance_detector alarm)"
+  interpretation: >
+    Positive = provenance detector fired earlier. If the conventional monitor
+    never alarms, lead time is reported as censored at the run length, and the
+    comparison is made against the cycle at which true decision quality
+    actually degraded.
+
+falsification:
+  # Directive §21 stop conditions, made concrete.
+  - "A3 shows no live_quality degradation -> phenomenon absent -> STOP"
+  - "Effect does not hold across >=5 seeds -> STOP"
+  - "A9 (matched write volume, no feedback) degrades comparably -> confound -> STOP"
+  - "RR alarm requires threshold change to fire before harm -> post-hoc tuning -> STOP"

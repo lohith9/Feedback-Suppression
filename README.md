@@ -12,6 +12,36 @@ subsequent automated decisions.
 
 ---
 
+## What you can do with this
+
+- **Reproduce the results.** `reproduce.py` regenerates C1 (420 runs) and C2 (360 runs)
+  bit-for-bit against the immutable raw records; `audit/v3/audit_recompute.py` recomputes
+  the V3 severity result independently. `$0`, CPU-only, offline, under a minute.
+- **Study the mechanism.** A clean reference implementation of two isolated feedback channels
+  (Factor A producer deference, Factor B readable write-back) under matched write volume, with
+  read-only instrumentation whose non-interference is verified (70 conditions, bit-identical
+  instrument on/off).
+- **Extend the experiments.** Configurable knobs — deference weight, write-back readability,
+  observation error rate, truth-change severity (σ), observation correlation (ρ),
+  entities/cycles/seeds. Run new sweeps, gradual instead of abrupt drift, adversarial or
+  systematically-misleading observations, or alternative aggregation rules.
+- **Add scenarios.** The synthetic reference and the UCI adapter share one scenario interface;
+  plug in another dataset or domain and test whether the effect appears.
+- **Try a better provenance detector.** AOD/RR are implemented and shown to *fail* at telling
+  harmful from benign configurations — this is a ready testbed (with ground-truth harmful vs
+  benign setups) for a metric that does better.
+- **Teach / demo.** A deterministic, minute-long, zero-cost example of feedback-loop dynamics.
+
+## What this is not
+
+- **Not a production or governance tool** — not for scoring, ranking, or deciding about real people.
+- **No language model is involved** — so this is not evidence about real LLM-based agents.
+- **Simulator-bounded** — the strong synthetic effect does not automatically generalise; under a
+  realistic UCI-derived partial shift the adaptation-specific effect attenuates to near zero
+  (see the boundary result). Treat conclusions as internal to the controlled simulator.
+
+---
+
 ## 1. Purpose
 When an AI system writes a typed value into a system of record (a risk field, a
 severity, a classification) and a later automated decision reads that value back

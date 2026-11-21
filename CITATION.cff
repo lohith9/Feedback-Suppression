@@ -13,11 +13,11 @@ authors:
   - family-names: "Andra"
     given-names: "Lohith Sai"
     email: "lohithsaiandra18@gmail.com"
-    affiliation: "Independent Researcher"
-    # orcid: "https://orcid.org/0000-0000-0000-0000"   # add if available
+    affiliation: "Independent Researcher, Henrico, VA, USA"
+    orcid: "https://orcid.org/0009-0007-6826-604X"
 version: "1.0.0"
 date-released: "2026-08-23"
-# repository-code: add the GitHub URL here once the public repository is created.
+repository-code: "https://github.com/lohith9/Feedback-Suppression"
 # Omitted intentionally — no URL has been assigned yet (do not invent one).
 license: MIT            # source code; research content is CC BY 4.0 (see LICENSE-CONTENT.md)
 keywords:
@@ -36,7 +36,7 @@ preferred-citation:
     - family-names: "Andra"
       given-names: "Lohith Sai"
       email: "lohithsaiandra18@gmail.com"
-      affiliation: "Independent Researcher"
+      affiliation: "Independent Researcher, Henrico, VA, USA"
   collection-title: "Proc. 4th Int. Conf. on Artificial Intelligence, Computer, Data Sciences and Applications (ACDSA 2027)"
   year: 2027
   notes: "Submitted / under review. Update on acceptance; final version to appear in IEEE Xplore subject to acceptance and presentation."

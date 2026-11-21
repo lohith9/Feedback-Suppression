@@ -1,0 +1,77 @@
+# AGGREGATION_ABLATION_V4.yaml
+# FROZEN pre-registration, written 2026-11-21 BEFORE any V4 run (smoke or confirmatory).
+# Motivation: ACDSA 2027 reviewer comments (Paper 872). Reviewer 2: the main result
+# "stems from cumulative majority aggregation" and the A x B interaction "is not
+# sufficiently separated from saturation". This study tests both directly.
+# Status: POST-REVIEW study. It is pre-registered before data collection, but it was
+# designed AFTER the C1/C2/UCI/V3 results were known. Reported as such.
+# C1/C2/UCI/V3 preregistrations, code, and raw results are NOT modified.
+
+study:
+  name: "Aggregation-rule ablation of structured-state feedback adaptation penalty"
+  version: "4.0"
+  date_frozen: "2026-11-21"
+  acceptable_outcomes: "effect persists | attenuates | vanishes | reverses | inconclusive | invalid - ALL acceptable"
+
+hypotheses:
+  H1: "The adaptation-specific penalty Delta_adapt of each feedback channel depends on the aggregation rule used to read structured state. Direction not assumed."
+  H2: "Under aggregation rules where neither channel alone reaches the quality floor, the two channels compose additively. Direction of any departure not assumed."
+
+engine:
+  frozen_mechanism: "pilot/phase1b/sim1c.py Sim1C produce/decide/run, unmodified; aggregators implemented in a subclass that changes ONLY which readable assertions are counted and how they are weighted"
+  entities: 100
+  cycles: 40
+  batch: 40
+  change_cycle: 15
+  error_rate: 0.25
+  noise: independent
+
+aggregators:
+  CUM:  "unweighted majority of ALL readable assertions (frozen C1 rule; anchor)"
+  WIN5: "unweighted majority of readable assertions written in the last 5 cycles (cycle > t-5); empty window -> treated as no prior state"
+  WIN10: "as WIN5 with 10 cycles"
+  LWW:  "last-write-wins: only the most recent readable assertion is read"
+  EXP:  "recency-weighted majority, weight 0.5**(age_in_cycles/3); value 1 if weighted ones >= half of total weight"
+  tie_rule: "ties go to 1, as in the frozen engine"
+
+conditions:   # (decision_writeback, deference_weight w)
+  REF: [false, 0.0]
+  A:   [false, 0.7]
+  B:   [true,  0.0]
+  AB:  [true,  0.7]
+regimes: [static, abrupt_shift]   # abrupt_shift = all labels invert at cycle 15 (frozen TruthProcess)
+seeds_confirmatory: "101..130 (30 fresh seeds, disjoint from C1/C2 seeds 1..30)"
+runs: "5 aggregators x 4 conditions x 2 regimes x 30 seeds = 1200"
+
+invariants:   # any failure -> INVALID, nothing reported as a result
+  I1: "CUM reproduces the published C1 raw runs bit-exactly for every overlapping condition, both regimes, seeds 1..30 (checked BEFORE the confirmatory run)"
+  I2: "write volume identical between writeback=false and writeback=true within every aggregator/regime/seed"
+  I3: "truth and noise streams depend only on seed (paired design), as in the frozen engine"
+
+estimands:    # quality q40 = decision quality at cycle 40 (+25 after the change)
+  gap: "q40(REF) - q40(condition), within seed, same aggregator and regime"
+  Delta_adapt: "gap(abrupt_shift) - gap(static), within seed  [PRIMARY, same estimand as V3]"
+  interaction: "Delta_adapt(AB) - Delta_adapt(A) - Delta_adapt(B), within seed"
+statistics:
+  unit: "seed (n=30)"
+  interval: "mean +/- 1.96 * sd / sqrt(n)  (same normal-approximation CI as C1)"
+  effect_size: "paired Cohen's d = mean / sd"
+decision_rules:
+  channel_effect:   # applied to Delta_adapt of A and of B under each aggregator
+    PRESENT: "CI excludes 0 AND mean >= 0.10 (the pre-registered practical floor used in C1/C2)"
+    ABSENT:  "CI upper bound < 0.10"
+    INCONCLUSIVE: "otherwise"
+  additivity:       # H2, only under aggregators that pass the identifiability check
+    identifiability: "abrupt q40 of A alone AND of B alone each exceed abrupt q40 of AB by >= 0.05 (seed-mean); otherwise the aggregator is SATURATED and the interaction is not interpreted"
+    ADDITIVE: "interaction CI includes 0"
+    SUB_ADDITIVE: "interaction CI entirely < 0"
+    SUPER_ADDITIVE: "interaction CI entirely > 0"
+descriptive_only:
+  - "adaptation time (quality >= 0.70 sustained 3 cycles), adapted/censored counts"
+  - "AOD and RR means"
+procedure:
+  1: "commit this file + its SHA-256 + runner + analysis script; push to the public repo"
+  2: "check I1 on seeds 1..30"
+  3: "smoke run seeds 1..3 checking I2/I3 only (no estimand inspected)"
+  4: "confirmatory run seeds 101..130; analysis exactly as locked in analyze_aggregation_v4.py"
+  deviations: "any deviation is reported in the results file and in the paper"

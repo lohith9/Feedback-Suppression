@@ -1,0 +1,5 @@
+# AGGREGATION_ABLATION_V4 preregistration freeze record
+file: preregistration/AGGREGATION_ABLATION_V4.yaml
+frozen: 2026-11-21
+sha256: 6332c73b78d6c3295558a9b4066fff7cc8329aa7e8cf8de9c281dd0b77672d4e
+note: written after ACDSA 2027 reviews, before any V4 run. Runner and locked analysis committed in the same commit.
